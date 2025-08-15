@@ -10,6 +10,7 @@ executable garden
     Data.Source
     Data.SourcePos
     Data.SourceSpan
+    Data.Phase
     Encoding.UTF8
     Parser.Internal
     Parser.Error
@@ -18,7 +19,11 @@ executable garden
     Parser
     Syntax.Obj
     Eval.Internal
+    Eval.Error
     Eval
+    Document
+    Document.Obj 
+    Unit
   build-depends:  
     , base
     , text
@@ -39,4 +44,5 @@ executable garden
     LambdaCase
     TypeOperators
     OverloadedStrings
+    TypeFamilies
   default-language: GHC2021 

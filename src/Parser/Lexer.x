@@ -124,4 +124,5 @@ lexAll = second fst . runP go . mkPState
     go = lexOne >>= \case
       token@(Token _ TcEof) -> pure [token]
       token -> (token :) <$> go
+      
 }
