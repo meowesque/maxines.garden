@@ -1,38 +1,84 @@
 {
   inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs";
     flake-utils.url = "github:numtide/flake-utils";
+    naersk.url = "github:nix-community/naersk";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+    rust-overlay.url = "github:oxalica/rust-overlay";
+    concatinator.url = "github:meowesque/concatinator";
   };
 
-  outputs = { self, nixpkgs, flake-utils, ... }:
-    flake-utils.lib.eachDefaultSystem (system: 
-      with nixpkgs.legacyPackages.${system};
+  outputs =
+    {
+      self,
+      flake-utils,
+      naersk,
+      nixpkgs,
+      rust-overlay,
+      concatinator
+    }:
+    flake-utils.lib.eachDefaultSystem (
+      system:
       let
-        name = "garden";
-        project = devTools:
-          let addBuildTools = (lib.trivial.flip haskell.lib.addBuildTools) devTools;
-          in haskellPackages.developPackage {
-            root = lib.sourceFilesBySuffices ./. [ ".cabal" ".hs" ];
-            name = name;
-            returnShellEnv = !(devTools == [ ]);
-            modifier = (lib.trivial.flip lib.trivial.pipe) [
-              addBuildTools
-              haskell.lib.dontHaddock
-              haskell.lib.enableStaticLibraries
-              haskell.lib.justStaticExecutables
-              haskell.lib.disableLibraryProfiling
-              haskell.lib.disableExecutableProfiling
+        pkgs = (import nixpkgs) {
+          inherit system;
+          overlays = [
+            (import rust-overlay)
+          ];
+        };
+
+        naersk' = pkgs.callPackage naersk { };
+
+        buildInputs = with pkgs; [
+        ];
+
+        nativeBuildInputs = with pkgs; [
+          (pkgs.rust-bin.stable.latest.default.override {
+            extensions = [
+              "rust-src"
+              "cargo"
+              "rustc"
             ];
+          })
+        ];
+      in
+      rec {
+        defaultPackage = packages.compiler;
+        packages = {
+          compiler = naersk'.buildPackage {
+            src = ./.;
+            nativeBuildInputs = nativeBuildInputs;
+            buildInputs = buildInputs;
           };
-      in {
-        packages.pkg = project [ ];
-        defaultPackage = self.packages.${system}.pkg;
-        devShell = project (with haskellPackages; [
-          cabal-fmt
-          cabal-install
-          haskell-language-server
-          hlint
-          fourmolu
-        ]);
-      });
+          container = pkgs.dockerTools.buildImage {
+            name = "compiler";
+            config = {
+              entrypoint = [ "${packages.compiler}/bin/compiler" ];
+            };
+          };
+        };
+
+        devShell = pkgs.mkShell {
+          RUST_SRC_PATH = "${
+            pkgs.rust-bin.stable.latest.default.override {
+              extensions = [ "rust-src" ];
+            }
+          }/lib/rustlib/src/rust/library";
+
+          nativeBuildInputs =
+            with pkgs;
+            [
+              nixfmt
+              cmake
+              rustc
+              rustfmt
+              cargo
+              clippy
+              rust-analyzer
+            ]
+            ++ buildInputs
+            ++ nativeBuildInputs
+            ++ [ concatinator.packages.${system}.concatinator ];
+        };
+      }
+    );
 }
