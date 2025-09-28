@@ -1,0 +1,136 @@
+@import "tailwindcss";
+
+/* https://coolors.co/palette/2f2504-594e36-7e846b-a5ae9e-d0ddd7 */
+
+nav {
+  @apply space-x-8 bg-[#181818] text-base text-[#6B737C] hover:underline decoration-1 underline-offset-7 decoration-[#6B737C] flex justify-end px-10 pt-6 text-lg;
+}
+
+body {
+  @apply bg-[#1f1f1f] text-[#F8F8F8] text-sm min-h-screen flex flex-col pb-26;
+
+  font-family: "Alan Sans", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 350;
+  font-style: normal;
+}
+
+header {
+  @apply bg-[#181818] pt-20;
+
+  font-family: "Alan Sans", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: normal;
+}
+
+header .header-top {
+  @apply mb-7 flex items-center space-x-2;
+}
+
+.header-top-designation {
+  @apply text-emerald-300 font-extrabold text-shadow-lg/10 text-shadow-emerald-300;
+}
+
+header .header-top svg {
+  @apply fill-emerald-300 w-4 h-4 drop-shadow-sm drop-shadow-emerald-300/50
+}
+
+.header-top-stage {
+  @apply text-sm font-semibold text-[#6B737C] border-l pl-4 ml-2;
+}
+
+.header-bottom {
+  @apply border-t border-[#2f2f2f] pt-4 flex flex-row justify-between mt-8 ; 
+}
+
+.header-tags {
+  @apply flex flex-wrap space-x-4 text-emerald-300 text-base text-shadow-lg/10 text-shadow-emerald-300;
+}
+
+.header-dates {
+  @apply text-sm text-[#6B737C] text-right flex flex-col space-y-1;
+}
+
+header .header-content {
+  @apply max-w-5xl mx-auto h-40 flex flex-col justify-center px-8;
+}
+
+header .header-title {
+  @apply text-5xl text-[#F8F8F8] font-semibold;
+}
+
+header .header-description {
+  @apply text-2xl text-[#6B737C] mt-6;
+}
+
+header .header-gradient {
+  @apply h-26 from-[#181818] via-[#181818] to-[#1f1f1f] bg-gradient-to-b;
+}
+
+main {
+  @apply space-y-8 max-w-5xl mx-auto;
+}
+
+h1 {
+  @apply text-4xl my-6 text-[#F8F8F8] font-semibold;
+}
+
+h2 {
+  @apply text-3xl my-6 font-semibold;
+}
+
+main a {
+  @apply underline decoration-1 underline-offset-7 text-[#FFAB70] decoration-[#6B737C];
+}
+
+h3 {
+  @apply text-2xl my-4 font-semibold;
+}
+
+p {
+  @apply text-xl leading-10;
+}
+
+pre.astro-code {
+  @apply border-[#F8F8F8] border p-4 rounded-sm overflow-x-auto my-6 shadow-xs shadow-[#F8F8F8]/30;
+}
+
+code {
+  font-family: "Fira Code", monospace;
+  font-optical-sizing: auto;
+  font-weight: 350;
+  font-style: normal;
+
+  counter-reset: step;
+  counter-increment: step 0;
+
+  @apply text-base;
+}
+
+code .line::before {
+  content: counter(step);
+  counter-increment: step;
+  width: 1rem;
+  margin-right: 1.5rem;
+  display: inline-block;
+  text-align: right;
+
+  @apply text-[#6B737C];
+}
+
+ul {
+  @apply list-disc;
+}
+
+ul li::marker {
+  @apply text-[#6B737C];
+}
+
+ol {
+  @apply list-decimal;
+}
+
+ol li::marker {
+  @apply text-[#6B737C];
+}
