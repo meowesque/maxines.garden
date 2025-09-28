@@ -1,0 +1,17 @@
+---
+import type { CollectionEntry } from "astro:content";
+import BaseHead from "../components/BaseHead.astro";
+import Footer from "../components/Footer.astro";
+import Header from "../components/Header.astro";
+
+type Props = CollectionEntry<"entries">["data"];
+---
+
+<html lang="en">
+  <head> 
+    <BaseHead title={Astro.props.title} description={Astro.props.description} />
+  </head>
+  <body>
+    <slot />
+  </body>
+</html>

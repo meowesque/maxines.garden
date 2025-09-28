@@ -1,0 +1,37 @@
+---
+import { getCollection } from "astro:content";
+import { SITE_DESCRIPTION, SITE_TITLE } from "../../constants";
+import FormattedDate from "../../components/FormattedDate.astro";
+import BaseHead from "../../components/BaseHead.astro";
+
+const entries = (await getCollection("entries")).sort(
+  (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
+);
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
+  </head>
+  <body>
+    <main>
+      <section>
+        <ul>
+          {
+            entries.map((entry) => (
+              <li>
+                <a href={`/entries/${entry.id}/`}>
+                  <h4 class="title">{entry.data.title}</h4>
+                  <p class="date">
+                    <FormattedDate date={entry.data.pubDate} />
+                  </p>
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </section>
+    </main>
+  </body>
+</html>
