@@ -1,1 +1,19 @@
 @import "tailwindcss";
+
+@theme {
+  --font-display: 'Alan Sans', sans-serif;
+  --font-mono: 'Fira Code', monospace;
+  --font-body: 'Alan Sans', sans-serif;
+
+  --color-bg: #1f1f1f;
+  --color-bg-alt: #131313;
+  --color-fg: #F8F8F8;
+  --color-fg-alt: #FFAB70;
+  --color-fg-muted: #6B737C;
+
+  --color-code-border: #2f2f2f;
+}
+
+@layer body {
+
+}

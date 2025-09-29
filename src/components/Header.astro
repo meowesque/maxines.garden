@@ -1,8 +1,70 @@
 ---
+interface Props {
+  title: string;
+  description: string;
+  tags?: string[];
+  lastEdited?: string;
+  created?: string;
+}
 
+// Function to calculate relative time
+function getRelativeTime(date: Date): string {
+  const now = new Date();
+  const diffInMs = now.getTime() - date.getTime();
+  const diffInMinutes = Math.floor(diffInMs / (1000 * 60));
+  const diffInHours = Math.floor(diffInMs / (1000 * 60 * 60));
+  const diffInDays = Math.floor(diffInMs / (1000 * 60 * 60 * 24));
+  const diffInMonths = Math.floor(diffInDays / 30);
+  const diffInYears = Math.floor(diffInDays / 365);
+
+  if (diffInYears >= 1) {
+    return diffInYears === 1 ? "about 1 year ago" : `about ${diffInYears} years ago`;
+  } else if (diffInMonths >= 1) {
+    return diffInMonths === 1 ? "about 1 month ago" : `about ${diffInMonths} months ago`;
+  } else if (diffInDays >= 1) {
+    return diffInDays === 1 ? "about 1 day ago" : `about ${diffInDays} days ago`;
+  } else if (diffInHours >= 1) {
+    return diffInHours === 1 ? "about 1 hour ago" : `about ${diffInHours} hours ago`;
+  } else if (diffInMinutes >= 1) {
+    return diffInMinutes === 1 ? "about 1 minute ago" : `about ${diffInMinutes} minutes ago`;
+  } else {
+    return "just now";
+  }
+}
 ---
 
-<nav>
-  <a href="/entries/latest">Latest</a>
-  <a href="/about">About</a>
-</nav>
+<header class="pt-12 px-8 md:px-8 max-w-4xl mx-auto">
+  <span class="text-5xl font-semibold text-[var(--color-fg)] pt-6">
+    {Astro.props.title}
+  </span>
+  <p class="text-[var(--color-fg-muted)] mt-1 text-xl pt-4">
+    {Astro.props.description}
+  </p>
+  <div
+    class="pt-6 border-t-[var(--color-code-border)] border-t-1 mt-6 flex justify-between"
+  >
+    <div class="space-x-4">
+      {
+        Astro.props.tags?.map((tag) => (
+          <span class="text-emerald-300">{tag}</span>
+        ))
+      }
+    </div>
+    <div class="text-[var(--color-fg-muted)] text-sm space-y-1">
+      <div class="text-right">
+        {
+          Astro.props.created
+            ? `Created ${getRelativeTime(new Date(Astro.props.created))}`
+            : ""
+        }
+      </div>
+      <div class="text-right">
+        {
+          Astro.props.lastEdited
+            ? `Edited ${getRelativeTime(new Date(Astro.props.lastEdited))}`
+            : ""
+        }
+      </div>
+    </div>
+  </div>
+</header>

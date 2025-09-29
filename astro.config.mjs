@@ -5,11 +5,12 @@ import sitemap from '@astrojs/sitemap';
 import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
 import tailwindcss from '@tailwindcss/vite';
+import pagefind from "astro-pagefind";
 
 // https://astro.build/config
 export default defineConfig({
   site: 'https://maxines.garden',
-  integrations: [mdx(), sitemap()],
+  integrations: [mdx(), sitemap(), pagefind()],
   markdown: {
     remarkPlugins: [remarkMath],
     rehypePlugins: [rehypeKatex],

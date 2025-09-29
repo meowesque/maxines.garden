@@ -1,0 +1,138 @@
+---
+import Chevron from "./Chevron.astro";
+
+interface Props {
+  headings: { depth: number; text: string; slug: string }[];
+}
+---
+
+<nav
+  id="on-this-page"
+  class="hidden lg:block bg-[var(--color-bg)] border-l border-l-[var(--color-code-border)] h-full overflow-y-auto"
+>
+  <div class="flex items-center justify-between space-x-4 px-5 pt-2">
+    <span class="text-[var(--color-fg)] mb-2 block text-sm font-semibold pt-2">
+      On This Page
+    </span>
+    <div class="rotate-270">
+      <Chevron />
+    </div>
+  </div>
+  <div>
+    <div class="pl-4 ml-1 space-y-1 text-sm">
+      {
+        Astro.props.headings.map((heading) => (
+          <a
+            class={`block text-[var(--color-fg-muted)] hover:text-[var(--color-fg)]`}
+            href={`#${heading.slug}`}
+            data-heading-link={heading.slug}
+          >
+            {heading.text}
+          </a>
+        ))
+      }
+    </div>
+  </div>
+</nav>
+
+<script>
+  function initOnThisPageHighlighting() {
+    const tocLinks = document.querySelectorAll("[data-heading-link]");
+
+    if (tocLinks.length === 0) return;
+
+    const headings = Array.from(tocLinks)
+      .map((link) => {
+        const slug = link.getAttribute("data-heading-link");
+        return document.getElementById(slug || "");
+      })
+      .filter(Boolean);
+
+    if (headings.length === 0) return;
+
+    let lastSurpassedIndex = -1;
+
+    function updateActiveHeading() {
+      let newLastSurpassedIndex = -1;
+
+      for (let i = 0; i < headings.length; i++) {
+        const heading = headings[i];
+        const rect = heading.getBoundingClientRect();
+
+        if (rect.top <= 100) {
+          newLastSurpassedIndex = i;
+        } else {
+          break; 
+        }
+      }
+
+      // Only update if there's a change
+      if (newLastSurpassedIndex !== lastSurpassedIndex) {
+        lastSurpassedIndex = newLastSurpassedIndex;
+
+        // Remove active class from all links
+        tocLinks.forEach((link) => {
+          link.classList.remove("text-[#5ee9b5]");
+          link.classList.add("text-[var(--color-fg-muted)]");
+        });
+
+        // Add active class to the last surpassed heading's link
+        if (lastSurpassedIndex >= 0) {
+          const activeLink = tocLinks[lastSurpassedIndex];
+          if (activeLink) {
+            activeLink.classList.remove("text-[var(--color-fg-muted)]");
+            activeLink.classList.add("text-[#5ee9b5]");
+          }
+        }
+      }
+    }
+
+    // Use scroll event for more responsive updates
+    let ticking = false;
+    function onScroll() {
+      if (!ticking) {
+        requestAnimationFrame(() => {
+          updateActiveHeading();
+          ticking = false;
+        });
+        ticking = true;
+      }
+    }
+
+    // Get the scrollable container (main element)
+    const scrollContainer = document.querySelector("main");
+    if (scrollContainer) {
+      scrollContainer.addEventListener("scroll", onScroll, { passive: true });
+    }
+
+    // Initial check
+    updateActiveHeading();
+
+    // Handle smooth scrolling for TOC links
+    tocLinks.forEach((link) => {
+      link.addEventListener("click", (e) => {
+        e.preventDefault();
+        const targetId = link.getAttribute("data-heading-link");
+        const targetHeading = document.getElementById(targetId || "");
+
+        if (targetHeading && scrollContainer) {
+          const offsetTop = targetHeading.offsetTop - 100;
+          scrollContainer.scrollTo({
+            top: offsetTop,
+            behavior: "smooth",
+          });
+        }
+      });
+    });
+  }
+
+  // Initialize when DOM is ready
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initOnThisPageHighlighting);
+  } else {
+    initOnThisPageHighlighting();
+  }
+
+  // Re-initialize on view transitions (if using Astro transitions)
+  document.addEventListener("astro:page-load", initOnThisPageHighlighting);
+</script>

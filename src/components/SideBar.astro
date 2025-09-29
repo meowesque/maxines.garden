@@ -1,0 +1,52 @@
+---
+import { getCollection } from "astro:content";
+import Chevron from "./Chevron.astro";
+import Search from "./Search.astro";
+
+const entries = (await getCollection("entries")).sort(
+  (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
+);
+---
+
+<nav
+  id="sidebar"
+  class="border-r-[var(--color-code-border)] border-r-1 bg-[var(--color-bg)] w-full h-full overflow-y-auto py-2 px-5"
+>
+  <div class="space-y-2 pt-3">
+    <div>
+      <div
+        class="bg-[var(--color-bg-alt)] border-[var(--color-code-border)] w-full border-1 rounded-md px-2 py-0.5 flex items-center space-x-2 font-light"
+      >
+        <Search />
+        <input
+          type="text"
+          placeholder="Search"
+          class="placeholder-[var(--color-fg-muted)]"
+        />
+      </div>
+    </div>
+    <div class="flex items-center space-x-2">
+      <Chevron />
+      <span
+        class="text-[var(--color-fg)] mb-2 block text-base font-semibold pt-2"
+      >
+        Software Architecture
+      </span>
+    </div>
+    <div class="border-l-1 border-l-[var(--color-fg)] pl-4 ml-1.75 box-content">
+      {
+        entries.map((entry) => (
+          <a
+            class="block aria-[current=page]:text-[#5ee9b5] text-[var(--color-fg-muted)] hover:text-[var(--color-fg)] text-sm"
+            href={`/entries/${entry.id}/`}
+            aria-current={
+              Astro.url.pathname === `/entries/${entry.id}/` ? "page" : false
+            }
+          >
+            {entry.data.title}
+          </a>
+        ))
+      }
+    </div>
+  </div>
+</nav>

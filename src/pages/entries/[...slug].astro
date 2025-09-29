@@ -9,12 +9,15 @@ export async function getStaticPaths() {
 		props: entry,
 	}));
 }
+
+const thing = Astro.props.data;
+
 type Props = CollectionEntry<'entries'>;
 
 const entry = Astro.props;
-const { Content } = await render(entry);
+const { Content, headings } = await render(entry);
 ---
 
-<GardenEntry {...entry.data}>
+<GardenEntry {...entry.data} headings={headings}>
 	<Content />
 </GardenEntry>
