@@ -18,7 +18,7 @@ interface Props {
   <div>
     <div class="pl-4 ml-1 space-y-1 text-sm">
       <a
-        class="block text-[#5ee9b5] hover:text-[var(--color-fg)]"
+        class="block hover:text-[var(--color-fg)]"
         href="#overview"
         data-heading-link="overview"
         id="overview-link"
@@ -76,14 +76,14 @@ interface Props {
         lastSurpassedIndex = newLastSurpassedIndex;
 
         tocLinks.forEach((link) => {
-          link.classList.remove("text-[#5ee9b5]");
+          link.classList.remove("text-[var(--color-fg)]");
           link.classList.add("text-[var(--color-fg-muted)]");
         });
 
         if (lastSurpassedIndex === -1) {
           if (overviewLink) {
             overviewLink.classList.remove("text-[var(--color-fg-muted)]");
-            overviewLink.classList.add("text-[#5ee9b5]");
+            overviewLink.classList.add("text-[var(--color-fg)]");
           }
         } else {
           const actualTocLinks = Array.from(tocLinks).filter(link => 
@@ -92,7 +92,7 @@ interface Props {
           const activeLink = actualTocLinks[lastSurpassedIndex];
           if (activeLink) {
             activeLink.classList.remove("text-[var(--color-fg-muted)]");
-            activeLink.classList.add("text-[#5ee9b5]");
+            activeLink.classList.add("text-[var(--color-fg)]");
           }
         }
       }
