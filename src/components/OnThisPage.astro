@@ -20,6 +20,15 @@ interface Props {
   </div>
   <div>
     <div class="pl-4 ml-1 space-y-1 text-sm">
+      <a
+        class="block text-[#5ee9b5] hover:text-[var(--color-fg)]"
+        href="#overview"
+        data-heading-link="overview"
+        id="overview-link"
+      >
+        Overview
+      </a>
+      
       {
         Astro.props.headings.map((heading) => (
           <a
@@ -38,17 +47,17 @@ interface Props {
 <script>
   function initOnThisPageHighlighting() {
     const tocLinks = document.querySelectorAll("[data-heading-link]");
+    const overviewLink = document.getElementById("overview-link");
 
     if (tocLinks.length === 0) return;
 
     const headings = Array.from(tocLinks)
+      .filter(link => link.getAttribute("data-heading-link") !== "overview")
       .map((link) => {
         const slug = link.getAttribute("data-heading-link");
         return document.getElementById(slug || "");
       })
       .filter(Boolean);
-
-    if (headings.length === 0) return;
 
     let lastSurpassedIndex = -1;
 
@@ -66,19 +75,24 @@ interface Props {
         }
       }
 
-      // Only update if there's a change
       if (newLastSurpassedIndex !== lastSurpassedIndex) {
         lastSurpassedIndex = newLastSurpassedIndex;
 
-        // Remove active class from all links
         tocLinks.forEach((link) => {
           link.classList.remove("text-[#5ee9b5]");
           link.classList.add("text-[var(--color-fg-muted)]");
         });
 
-        // Add active class to the last surpassed heading's link
-        if (lastSurpassedIndex >= 0) {
-          const activeLink = tocLinks[lastSurpassedIndex];
+        if (lastSurpassedIndex === -1) {
+          if (overviewLink) {
+            overviewLink.classList.remove("text-[var(--color-fg-muted)]");
+            overviewLink.classList.add("text-[#5ee9b5]");
+          }
+        } else {
+          const actualTocLinks = Array.from(tocLinks).filter(link => 
+            link.getAttribute("data-heading-link") !== "overview"
+          );
+          const activeLink = actualTocLinks[lastSurpassedIndex];
           if (activeLink) {
             activeLink.classList.remove("text-[var(--color-fg-muted)]");
             activeLink.classList.add("text-[#5ee9b5]");
@@ -87,7 +101,6 @@ interface Props {
       }
     }
 
-    // Use scroll event for more responsive updates
     let ticking = false;
     function onScroll() {
       if (!ticking) {
@@ -99,40 +112,45 @@ interface Props {
       }
     }
 
-    // Get the scrollable container (main element)
     const scrollContainer = document.querySelector("main");
     if (scrollContainer) {
       scrollContainer.addEventListener("scroll", onScroll, { passive: true });
     }
 
-    // Initial check
     updateActiveHeading();
 
-    // Handle smooth scrolling for TOC links
     tocLinks.forEach((link) => {
       link.addEventListener("click", (e) => {
         e.preventDefault();
         const targetId = link.getAttribute("data-heading-link");
-        const targetHeading = document.getElementById(targetId || "");
-
-        if (targetHeading && scrollContainer) {
-          const offsetTop = targetHeading.offsetTop - 100;
-          scrollContainer.scrollTo({
-            top: offsetTop,
-            behavior: "smooth",
-          });
+        
+        if (targetId === "overview") {
+          // Scroll to top for overview
+          if (scrollContainer) {
+            scrollContainer.scrollTo({
+              top: 0,
+              behavior: "smooth",
+            });
+          }
+        } else {
+          const targetHeading = document.getElementById(targetId || "");
+          if (targetHeading && scrollContainer) {
+            const offsetTop = targetHeading.offsetTop - 100;
+            scrollContainer.scrollTo({
+              top: offsetTop,
+              behavior: "smooth",
+            });
+          }
         }
       });
     });
   }
 
-  // Initialize when DOM is ready
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", initOnThisPageHighlighting);
   } else {
     initOnThisPageHighlighting();
   }
 
-  // Re-initialize on view transitions (if using Astro transitions)
   document.addEventListener("astro:page-load", initOnThisPageHighlighting);
 </script>
