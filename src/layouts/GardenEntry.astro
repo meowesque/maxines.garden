@@ -40,6 +40,7 @@ type Props = CollectionEntry<"entries">["data"] & {
           tags={Astro.props.tags}
           lastEdited={Astro.props.editDate}
           created={Astro.props.pubDate}
+          group={Astro.props.group}
         />
         <article id="content" class="px-6 md:px-12 pb-10">
           <slot />
