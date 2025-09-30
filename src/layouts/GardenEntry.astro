@@ -41,7 +41,7 @@ type Props = CollectionEntry<"entries">["data"] & {
           lastEdited={Astro.props.editDate}
           created={Astro.props.pubDate}
         />
-        <article id="content" class="px-6 md:px-8 py-10">
+        <article id="content" class="px-6 md:px-8 pb-10">
           <slot />
         </article>
         <Footer />
