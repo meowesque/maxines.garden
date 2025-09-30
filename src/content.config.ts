@@ -12,6 +12,7 @@ const entries = defineCollection({
 			heroImage: image().optional(),
 			editDate: z.coerce.date().optional(),
 			tags: z.array(z.string()).optional(),
+			group: z.string().optional(),
 		}),
 });
 

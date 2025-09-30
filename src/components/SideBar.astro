@@ -7,7 +7,15 @@ const entries = (await getCollection("entries")).sort(
   (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
 );
 
-// Function to calculate relative time
+const groupedEntries = entries.reduce((acc, entry) => {
+  const group = entry.data.group || "Uncategorized";
+  if (!acc[group]) {
+    acc[group] = [];
+  }
+  acc[group].push(entry);
+  return acc;
+}, {} as Record<string, typeof entries>);
+
 function getRelativeTime(date: Date): string {
   const now = new Date();
   const diffInDays = Math.floor(
@@ -46,97 +54,112 @@ function getRelativeTime(date: Date): string {
       </div>
     </div>
 
-    <div class="flex items-center justify-between">
-      <button
-        id="category-toggle"
-        class="flex items-center space-x-2"
-        aria-expanded="true"
-      >
-        <div id="chevron">
-          <Chevron />
-        </div>
-        <span class="text-[var(--color-fg)] text-base font-semibold">
-          Software Architecture
-        </span>
-      </button>
-      <span class="text-xs text-[var(--color-fg-muted)] px-2 pt-1">
-        {entries.length}
-      </span>
-    </div>
-
-    <div id="entries-list" class="pl-4 ml-2">
-      {
-        entries.map((entry) => (
-          <a
-            class={
-              "block group aria-[current=page]:border-l-1 border-l-1 border-l-[var(--color-fg-muted)] hover:border-l-[var(--color-fg)] aria-[current=page]:border-l-[#5ee9b5]  aria-[current=page]:text-[#5ee9b5] text-[var(--color-fg-muted)] hover:text-[var(--color-fg)] pl-4 pr-2 py-2 -ml-4.25"
-            }
-            href={`/entries/${entry.id}/`}
-            aria-current={
-              Astro.url.pathname === `/entries/${entry.id}/` ? "page" : false
-            }
+    {Object.entries(groupedEntries).map(([groupName, groupEntries]) => (
+      <div class="group-section">
+        <div class="flex items-center justify-between">
+          <button
+            class="category-toggle flex items-center space-x-2"
+            aria-expanded="true"
+            data-group={groupName}
           >
-            <div class="flex items-start justify-between gap-2">
-              <div class="flex-1 min-w-0">
-                <h3 class="font-medium text-sm leading-snug mb-1 group-hover:text-[var(--color-fg)]">
-                  {entry.data.title}
-                </h3>
-                <p class="text-xs text-[var(--color-fg-muted)] leading-relaxed line-clamp-2 group-hover:text-[var(--color-fg-muted)] opacity-80">
-                  {entry.data.description}
-                </p>
-                {entry.data.tags && entry.data.tags.length > 0 && (
-                  <div class="flex flex-wrap gap-1 mt-2">
-                    {entry.data.tags.slice(0, 2).map((tag) => (
-                      <span class="text-xs text-[var(--color-fg-muted)] pr-1 py-0.5 rounded-full">
-                        {tag}
-                      </span>
-                    ))}
-                    {entry.data.tags.length > 2 && (
-                      <span class="text-xs text-[var(--color-fg-muted)] pt-0.5 px-1">
-                        +{entry.data.tags.length - 2}
+            <div class="chevron">
+              <Chevron />
+            </div>
+            <span class="text-[var(--color-fg)] text-base font-semibold">
+              {groupName}
+            </span>
+          </button>
+          <span class="text-xs text-[var(--color-fg-muted)] px-2 pt-1">
+            {groupEntries.length}
+          </span>
+        </div>
+
+        <div class="entries-list pl-4 ml-2" data-group={groupName}>
+          {
+            groupEntries.map((entry) => (
+              <a
+                class={
+                  "block group aria-[current=page]:border-l-1 border-l-1 border-l-[var(--color-fg-muted)] hover:border-l-[var(--color-fg)] aria-[current=page]:border-l-[#5ee9b5]  aria-[current=page]:text-[#5ee9b5] text-[var(--color-fg-muted)] hover:text-[var(--color-fg)] pl-4 pr-2 py-2 -ml-4.25"
+                }
+                href={`/entries/${entry.id}/`}
+                aria-current={
+                  Astro.url.pathname === `/entries/${entry.id}/` ? "page" : false
+                }
+              >
+                <div class="flex items-start justify-between gap-2">
+                  <div class="flex-1 min-w-0">
+                    <h3 class="font-medium text-sm leading-snug mb-1 group-hover:text-[var(--color-fg)]">
+                      {entry.data.title}
+                    </h3>
+                    <p
+                      class="text-xs text-[var(--color-fg-muted)] leading-relaxed line-clamp-2 group-hover:text-[var(--color-fg-muted)] opacity-80 aria-[current=page]:text-[var(--color-fg)]"
+                      aria-current={
+                        Astro.url.pathname === `/entries/${entry.id}/`
+                          ? "page"
+                          : false
+                      }
+                    >
+                      {entry.data.description}
+                    </p>
+                    {entry.data.tags && entry.data.tags.length > 0 && (
+                      <div class="flex flex-wrap gap-1 mt-2">
+                        {entry.data.tags.slice(0, 2).map((tag) => (
+                          <span class="text-xs text-[var(--color-fg-muted)] pr-1 py-0.5 rounded-full">
+                            {tag}
+                          </span>
+                        ))}
+                        {entry.data.tags.length > 2 && (
+                          <span class="text-xs text-[var(--color-fg-muted)] pt-0.5 px-1">
+                            +{entry.data.tags.length - 2}
+                          </span>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                  <div class="flex flex-col items-end text-xs text-[var(--color-fg-muted)] opacity-60 group-hover:opacity-80 transition-opacity duration-200">
+                    <span>{getRelativeTime(new Date(entry.data.pubDate))}</span>
+                    {entry.data.lastEdited && (
+                      <span class="text-emerald-400 text-[10px] mt-0.5">
+                        edited
                       </span>
                     )}
                   </div>
-                )}
-              </div>
-              <div class="flex flex-col items-end text-xs text-[var(--color-fg-muted)] opacity-60 group-hover:opacity-80 transition-opacity duration-200">
-                <span>{getRelativeTime(new Date(entry.data.pubDate))}</span>
-                {entry.data.lastEdited && (
-                  <span class="text-emerald-400 text-[10px] mt-0.5">
-                    edited
-                  </span>
-                )}
-              </div>
-            </div>
-          </a>
-        ))
-      }
-    </div>
+                </div>
+              </a>
+            ))
+          }
+        </div>
+      </div>
+    ))}
   </div>
 </nav>
 
 <script>
   function initSidebarCollapse() {
-    const toggleButton = document.getElementById("category-toggle");
-    const entriesList = document.getElementById("entries-list");
-    const chevron = document.getElementById("chevron");
+    const toggleButtons = document.querySelectorAll(".category-toggle");
 
-    if (!toggleButton || !entriesList || !chevron) return;
+    toggleButtons.forEach(toggleButton => {
+      const groupName = toggleButton.getAttribute("data-group");
+      const entriesList = document.querySelector(`.entries-list[data-group="${groupName}"]`);
+      const chevron = toggleButton.querySelector(".chevron");
 
-    let isExpanded = true;
+      if (!toggleButton || !entriesList || !chevron) return;
 
-    toggleButton.addEventListener("click", () => {
-      isExpanded = !isExpanded;
+      let isExpanded = true;
 
-      if (isExpanded) {
-        entriesList.style.display = "block";
-        chevron.style.transform = "rotate(0deg)";
-        toggleButton.setAttribute("aria-expanded", "true");
-      } else {
-        entriesList.style.display = "none";
-        chevron.style.transform = "rotate(-90deg)";
-        toggleButton.setAttribute("aria-expanded", "false");
-      }
+      toggleButton.addEventListener("click", () => {
+        isExpanded = !isExpanded;
+
+        if (isExpanded) {
+          entriesList.style.display = "block";
+          chevron.style.transform = "rotate(0deg)";
+          toggleButton.setAttribute("aria-expanded", "true");
+        } else {
+          entriesList.style.display = "none";
+          chevron.style.transform = "rotate(-90deg)";
+          toggleButton.setAttribute("aria-expanded", "false");
+        }
+      });
     });
   }
 
@@ -150,7 +173,6 @@ function getRelativeTime(date: Date): string {
 </script>
 
 <style>
-  /* Line clamp utility for description truncation */
   .line-clamp-2 {
     display: -webkit-box;
     -webkit-line-clamp: 2;
