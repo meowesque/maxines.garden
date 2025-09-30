@@ -3,4 +3,4 @@
 ## TODO
 
 * Presentation mode 
-* Subtle header gradient 
+* OnThisPage doesn't highlight last header
