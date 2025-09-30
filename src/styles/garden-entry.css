@@ -62,5 +62,5 @@
 }
 
 #content a {
-  @apply underline decoration-1 underline-offset-7 text-[#FFAB70] decoration-[#6B737C];
+  @apply text-[#FFAB70];
 }
