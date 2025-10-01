@@ -1,7 +1,7 @@
 ---
 title: 'QUIC and Actors with Tokio'
 description: "Modular server design: QUIC networking with Tokio actors"
-pubDate: 'Jul 08 2022'
+pubDate: 'Mar 1 2025'
 editDate: 'Sep 25 2025'
 tags: ["QUIC", "Tokio", "Systems"]
 group: "Software Architecture"
