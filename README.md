@@ -13,4 +13,4 @@ My endless ensemble of notes and articles. Exploring topics in type theory, soft
 
 ## License
 
-Licensed under [CC0-1.0 Universal](https://creativecommons.org/publicdomain/zero/1.0/). (Do anything you'd like with my code).
+Licensed under [CC0-1.0 Universal](https://creativecommons.org/publicdomain/zero/1.0/). (Do anything you'd like with my code!)
