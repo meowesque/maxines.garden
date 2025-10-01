@@ -58,6 +58,7 @@ function getRelativeTime(date: Date): string {
         <Search />
         <input
           type="text"
+          id="search-input"
           placeholder="Search entries..."
           class="placeholder-[var(--color-fg-muted)] bg-transparent outline-none flex-1 text-sm"
         />
@@ -68,7 +69,7 @@ function getRelativeTime(date: Date): string {
       <div class="group-section">
         <div class="flex items-center justify-between">
           <button
-            class="category-toggle flex items-center space-x-2"
+            class="category-toggle flex items-center space-x-2 hover:cursor-pointer"
             aria-expanded={groupName === currentGroup ? "true" : "false"}
             data-group={groupName}
           >
@@ -145,6 +146,48 @@ function getRelativeTime(date: Date): string {
 </nav>
 
 <script>
+  function fuzzyMatch(query, text) {
+    if (!query) return { matches: true, score: 0, highlights: [] };
+    
+    query = query.toLowerCase();
+    text = text.toLowerCase();
+    
+    let queryIndex = 0;
+    let textIndex = 0;
+    let score = 0;
+    let highlights = [];
+    
+    while (queryIndex < query.length && textIndex < text.length) {
+      if (query[queryIndex] === text[textIndex]) {
+        highlights.push(textIndex);
+        score += 1;
+        queryIndex++;
+      }
+      textIndex++;
+    }
+    
+    const matches = queryIndex === query.length;
+    const finalScore = matches ? score / text.length : 0;
+    
+    return { matches, score: finalScore, highlights };
+  }
+
+  function highlightText(text, highlights, query) {
+    if (!highlights.length || !query) return text;
+    
+    let result = '';
+    let lastIndex = 0;
+    
+    highlights.forEach(index => {
+      result += text.slice(lastIndex, index);
+      result += `<mark class="bg-yellow-100 text-black">${text[index]}</mark>`;
+      lastIndex = index + 1;
+    });
+    
+    result += text.slice(lastIndex);
+    return result;
+  }
+
   function initSidebarCollapse() {
     const toggleButtons = document.querySelectorAll(".category-toggle");
 
@@ -173,13 +216,113 @@ function getRelativeTime(date: Date): string {
     });
   }
 
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", initSidebarCollapse);
-  } else {
-    initSidebarCollapse();
+  function initSearch() {
+    const searchInput = document.getElementById("search-input");
+    const groupSections = document.querySelectorAll(".group-section");
+    
+    if (!searchInput) return;
+
+    const originalContent = new Map();
+    groupSections.forEach(section => {
+      const entries = section.querySelectorAll(".entries-list a");
+      entries.forEach(entry => {
+        const title = entry.querySelector("h3");
+        const description = entry.querySelector("p");
+        if (title && description) {
+          originalContent.set(entry, {
+            title: title.innerHTML,
+            description: description.innerHTML
+          });
+        }
+      });
+    });
+
+    searchInput.addEventListener("input", (e) => {
+      const query = e.target.value.trim();
+      
+      groupSections.forEach(section => {
+        const groupName = section.querySelector("[data-group]").getAttribute("data-group");
+        const entriesList = section.querySelector(`.entries-list[data-group="${groupName}"]`);
+        const entries = section.querySelectorAll(".entries-list a");
+        const chevron = section.querySelector(".chevron");
+        const toggleButton = section.querySelector(".category-toggle");
+        
+        let hasVisibleEntries = false;
+        let groupMatches = [];
+        
+        entries.forEach(entry => {
+          const original = originalContent.get(entry);
+          const titleEl = entry.querySelector("h3");
+          const descriptionEl = entry.querySelector("p");
+          const tagElements = entry.querySelectorAll(".flex.flex-wrap span");
+          
+          if (!original || !titleEl || !descriptionEl) return;
+          
+          const title = original.title.replace(/<[^>]*>/g, ''); 
+          const description = original.description.replace(/<[^>]*>/g, '');
+          const tags = Array.from(tagElements).map(tag => tag.textContent || '').join(' ');
+          
+          const titleMatch = fuzzyMatch(query, title);
+          const descriptionMatch = fuzzyMatch(query, description);
+          const tagsMatch = fuzzyMatch(query, tags);
+          
+          const hasMatch = titleMatch.matches || descriptionMatch.matches || tagsMatch.matches;
+          const totalScore = titleMatch.score + descriptionMatch.score + tagsMatch.score;
+          
+          if (hasMatch) {
+            groupMatches.push({ entry, score: totalScore });
+            hasVisibleEntries = true;
+          }
+          
+          if (query && hasMatch) {
+            titleEl.innerHTML = highlightText(title, titleMatch.highlights, query);
+            descriptionEl.innerHTML = highlightText(description, descriptionMatch.highlights, query);
+          } else {
+            titleEl.innerHTML = original.title;
+            descriptionEl.innerHTML = original.description;
+          }
+          
+          entry.style.display = (!query || hasMatch) ? "block" : "none";
+        });
+        
+        if (query && groupMatches.length > 0) {
+          groupMatches.sort((a, b) => b.score - a.score);
+          groupMatches.forEach(({ entry }, index) => {
+            entry.style.order = index.toString();
+          });
+        } else {
+          entries.forEach(entry => {
+            entry.style.order = '';
+          });
+        }
+        
+        section.style.display = (!query || hasVisibleEntries) ? "block" : "none";
+        
+        if (query && hasVisibleEntries) {
+          entriesList.style.display = "block";
+          chevron.style.transform = "rotate(0deg)";
+          toggleButton.setAttribute("aria-expanded", "true");
+        } else if (!query) {
+          const shouldBeExpanded = toggleButton.getAttribute("aria-expanded") === "true";
+          entriesList.style.display = shouldBeExpanded ? "block" : "none";
+          chevron.style.transform = shouldBeExpanded ? "rotate(0deg)" : "rotate(-90deg)";
+        }
+      });
+    });
   }
 
-  document.addEventListener("astro:page-load", initSidebarCollapse);
+  function initSidebar() {
+    initSidebarCollapse();
+    initSearch();
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initSidebar);
+  } else {
+    initSidebar();
+  }
+
+  document.addEventListener("astro:page-load", initSidebar);
 </script>
 
 <style>
@@ -188,5 +331,20 @@ function getRelativeTime(date: Date): string {
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
+  }
+  
+  .entries-list {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .entries-list a {
+    order: 0;
+  }
+  
+  mark {
+    background-color: #fef08a;
+    color: #000;
+    padding: 0 2px;
   }
 </style>
