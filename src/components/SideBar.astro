@@ -16,6 +16,16 @@ const groupedEntries = entries.reduce((acc, entry) => {
   return acc;
 }, {} as Record<string, typeof entries>);
 
+const sortedGroups = Object.entries(groupedEntries).sort(([a], [b]) => {
+  if (a === "Meta") return -1;
+  if (b === "Meta") return 1;
+  return a.localeCompare(b);
+});
+
+const currentPath = Astro.url.pathname;
+const currentEntry = entries.find(entry => currentPath === `/entries/${entry.id}/`);
+const currentGroup = currentEntry?.data.group || null;
+
 function getRelativeTime(date: Date): string {
   const now = new Date();
   const diffInDays = Math.floor(
@@ -54,15 +64,15 @@ function getRelativeTime(date: Date): string {
       </div>
     </div>
 
-    {Object.entries(groupedEntries).map(([groupName, groupEntries]) => (
+    {sortedGroups.map(([groupName, groupEntries]) => (
       <div class="group-section">
         <div class="flex items-center justify-between">
           <button
             class="category-toggle flex items-center space-x-2"
-            aria-expanded="true"
+            aria-expanded={groupName === currentGroup ? "true" : "false"}
             data-group={groupName}
           >
-            <div class="chevron">
+            <div class="chevron" style={groupName === currentGroup ? "" : "transform: rotate(-90deg)"}>
               <Chevron />
             </div>
             <span class="text-[var(--color-fg)] text-base font-semibold">
@@ -74,7 +84,7 @@ function getRelativeTime(date: Date): string {
           </span>
         </div>
 
-        <div class="entries-list pl-4 ml-2" data-group={groupName}>
+        <div class="entries-list pl-4 ml-2" data-group={groupName} style={groupName === currentGroup ? "" : "display: none"}>
           {
             groupEntries.map((entry) => (
               <a
@@ -145,7 +155,7 @@ function getRelativeTime(date: Date): string {
 
       if (!toggleButton || !entriesList || !chevron) return;
 
-      let isExpanded = true;
+      let isExpanded = toggleButton.getAttribute("aria-expanded") === "true";
 
       toggleButton.addEventListener("click", () => {
         isExpanded = !isExpanded;
