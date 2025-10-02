@@ -5,6 +5,7 @@ pubDate: 'Sep 25 2025'
 editDate: 'Sep 25 2025'
 tags: ["Homotopy Type Theory", "Mathematics", "Arend"]
 group: "Type Theory"
+hidden: true
 ---
 
 ## Types as Topological Spaces

@@ -5,4 +5,5 @@ pubDate: 'Oct 01 2025'
 editDate: 'Oct 01 2025'
 tags: ["Logic", "Mathematics"]
 group: "Type Theory"
+hidden: true
 ---
