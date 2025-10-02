@@ -2,12 +2,12 @@
 import "../styles/garden-entry.css";
 import { ClientRouter } from "astro:transitions";
 import { getCollection, type CollectionEntry } from "astro:content";
-import BaseHead from "../components/BaseHead.astro";
-import Footer from "../components/Footer.astro";
-import NavBar from "../components/NavBar.astro";
-import Header from "../components/Header.astro";
-import SideBar from "../components/SideBar.astro";
-import OnThisPage from "../components/OnThisPage.astro";
+import BaseHead from "../components/layouts/BaseHead.astro";
+import Footer from "../components/layouts/Footer.astro";
+import NavBar from "../components/layouts/NavBar.astro";
+import Header from "../components/layouts/Header.astro";
+import SideBar from "../components/layouts/SideBar.astro";
+import OnThisPage from "../components/layouts/OnThisPage.astro";
 import Search from "astro-pagefind/components/Search";
 
 type Props = CollectionEntry<"entries">["data"] & {

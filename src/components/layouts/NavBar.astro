@@ -1,0 +1,28 @@
+---
+import Logo from "../icons/Logo.astro";
+import Search from "../icons/Search.astro";
+---
+
+<header
+  class="h-15 bg-[var(--color-bg)] border-b-[var(--color-bg-alt)] border-b-1 flex items-center justify-between pl-5 pr-6"
+>
+  <div>
+    <div class="space-x-4 flex">
+      <Logo />
+    </div>
+  </div>
+  <div
+    class="flex items-center divide-x space-x-6 divide-[var(--color-fg-muted)]"
+  >
+    <div class="pr-6">
+      <a href="https://github.com/meowesque"> 
+        <Search />
+      </a>
+    </div>
+
+    <div class="space-x-6">
+      <a class="text-[var(--color-fg-muted)]">Latest</a>
+      <a class="text-[var(--color-fg-muted)]">About</a>
+    </div>
+  </div>
+</header>

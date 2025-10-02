@@ -1,7 +1,7 @@
 ---
 import { getCollection } from "astro:content";
-import Chevron from "./Chevron.astro";
-import Search from "./Search.astro";
+import Chevron from "../icons/Chevron.astro";
+import Search from "../icons/Search.astro";
 
 const entries = (await getCollection("entries")).sort(
   (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
