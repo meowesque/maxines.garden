@@ -2,7 +2,7 @@
 title: 'QUIC and Actors with Tokio'
 description: "Modular server design: QUIC networking with Tokio actors"
 pubDate: 'Mar 1 2025'
-editDate: 'Sep 25 2025'
+editDate: 'Oct 2 2025'
 tags: ["QUIC", "Tokio", "Systems"]
 group: "Software Architecture"
 ---
@@ -121,7 +121,7 @@ Splitting our actors up into very basic responsibilities is convenient for multi
 
   4. Decoupling provides easier error recovery without sacrificing simplicity.
 
-### Listener Implementation
+### Listener
 
 ```rust
 struct Actor {
