@@ -7,13 +7,13 @@ tags: ["QUIC", "Tokio", "Systems"]
 group: "Software Architecture"
 ---
 
-After discovering [A. Rhyl, Actors with Tokio](https://ryhl.io/blog/actors-with-tokio/) in my search of architecting servers in a more modular way via common encapsulation patterns, I was delighted to finally find something that helped me understand the bigger picture. This resource made me rethink server architecture and provided valuable insights into the use of actors with Tokio. The explanations were clear, and the examples were practical, making it an excellent starting point for anyone interested in this topic. However, while it was incredibly informative, I found it did not fully satisfy my needs in my endeavors. I was left wanting more detailed guidance and advanced techniques to further enhance my server architecture.
+After discovering [A. Ryhl, Actors with Tokio](https://ryhl.io/blog/actors-with-tokio/) in my search of architecting servers in a more modular way via common encapsulation patterns, I was delighted to finally find something that helped me understand the bigger picture. This resource made me rethink server architecture and provided valuable insights into the use of actors with Tokio. The explanations were clear, and the examples were practical, making it an excellent starting point for anyone interested in this topic. However, while it was incredibly informative, I found it did not fully satisfy my needs in my endeavors. I was left wanting more detailed guidance and advanced techniques to further enhance my server architecture.
 
 *You can find an example server and client (and necessary configuration for QUIC) for this post [here](https://github.com/meowesque) - for simplicity sake we only go over the server's implementation.*
 
 ## Actors with Tokio
 
-The gist of [A. Rhyl, Actors with Tokio](https://ryhl.io/blog/actors-with-tokio/) is how an actor is split into a handle (also referred to as a proxy) and the task. Typically the task is an I/O operation that the handle communicates with, providing a simple interface for the programmer whilst keeping everything decoupled. For example let's first look a simple (pure) actor and handle that doesn't actually interact with the "outside world," merely producing naturals incrementally:
+The gist of [A. Ryhl, Actors with Tokio](https://ryhl.io/blog/actors-with-tokio/) is how an actor is split into a handle (also referred to as a proxy) and the task. Typically the task is an I/O operation that the handle communicates with, providing a simple interface for the programmer whilst keeping everything decoupled. For example let's first look at a simple (pure) actor and handle that doesn't actually interact with the "outside world," merely producing naturals incrementally:
 
 ```rust
 use tokio::sync::{oneshot, mpsc};
@@ -104,7 +104,7 @@ Now that we have a basic idea of what an actor looks like, let's build a basic s
 
   - [Listener](#listener) Accepts incoming clients and sets up our actors. 
 
-  - [Inbound](#inbound) Recieves incoming messages from the client.
+  - [Inbound](#inbound) Receives incoming messages from the client.
 
   - [Outbound](#outbound) Sends messages to the client.
 
@@ -174,7 +174,7 @@ impl Handle {
 
 [Source](https://github.com/meowesque/quic-and-actors-with-tokio/blob/main/crates/server/src/actors/listener.rs)
 
-Within `Actor::run` whenever we accept an incomming connection, we'll accept bidirectional channels to seperate recieving and sending data into two actors: [Inbound](#inbound) and [Outbound](#outbound). The [inbound actor](#inbound) will be equipped with its own newly created [dispatch](#dispatch) actor handle.
+Within `Actor::run` whenever we accept an incoming connection, we'll accept bidirectional channels to separate receiving and sending data into two actors: [Inbound](#inbound) and [Outbound](#outbound). The [inbound actor](#inbound) will be equipped with its own newly created [dispatch](#dispatch) actor handle.
 
 ### Inbound
 
@@ -232,7 +232,7 @@ impl Handle {
 
 [Source](https://github.com/meowesque/quic-and-actors-with-tokio/blob/main/crates/server/src/actors/inbound.rs)
 
-This our first seemingly complex actor, the goal here is to receive incoming data and deserialize it with [bitcode](crates.io/crates/bitcode) and send it off to be dispatched. Any deserialization crate (like [bincode](crates.io/crates/bincode)) will do. For performance and memory efficient applications that need to scale, [bitcode](crates.io/crates/bitcode) may be preferrable.  
+This is our first seemingly complex actor, the goal here is to receive incoming data and deserialize it with [bitcode](crates.io/crates/bitcode) and send it off to be dispatched. Any deserialization crate (like [bincode](crates.io/crates/bincode)) will do. For performance and memory efficient applications that need to scale, [bitcode](crates.io/crates/bitcode) may be preferable.  
 
 ### Outbound
 
@@ -272,9 +272,9 @@ pub struct Handle {
 impl Handle {
   pub fn new(stream: quinn::SendStream) -> Self {
     let (tx, rx) = mpsc::channel(CHANNEL_SIZE);
-    let actor = Acotr { stream, rx };
+    let actor = Actor { stream, rx };
 
-    tokio::spawn(async move { actor.run() });
+    tokio::spawn(async move { actor.run().await });
 
     Self { tx }
   }
