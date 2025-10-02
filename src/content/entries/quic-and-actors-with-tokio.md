@@ -9,7 +9,7 @@ group: "Software Architecture"
 
 After discovering [A. Ryhl, Actors with Tokio](https://ryhl.io/blog/actors-with-tokio/) in my search of architecting servers in a more modular way via common encapsulation patterns, I was delighted to finally find something that helped me understand the bigger picture. This resource made me rethink server architecture and provided valuable insights into the use of actors with Tokio. The explanations were clear, and the examples were practical, making it an excellent starting point for anyone interested in this topic. However, while it was incredibly informative, I found it did not fully satisfy my needs in my endeavors. I was left wanting more detailed guidance and advanced techniques to further enhance my server architecture.
 
-*You can find an example server and client (and necessary configuration for QUIC) for this post [here](https://github.com/meowesque) - for simplicity sake we only go over the server's implementation.*
+*You can find an example server and client (and necessary configuration for QUIC) for this post [here](https://github.com/meowesque/quic-and-actors-with-tokio) - for simplicity sake we only go over the server's implementation.*
 
 ## Actors with Tokio
 
