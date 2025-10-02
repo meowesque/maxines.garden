@@ -13,6 +13,7 @@ const entries = defineCollection({
 			editDate: z.coerce.date().optional(),
 			tags: z.array(z.string()).optional(),
 			group: z.string().optional(),
+			hidden: z.boolean().optional(),
 		}),
 });
 

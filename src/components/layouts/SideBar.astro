@@ -3,9 +3,9 @@ import { getCollection } from "astro:content";
 import Chevron from "../icons/Chevron.astro";
 import Search from "../icons/Search.astro";
 
-const entries = (await getCollection("entries")).sort(
-  (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
-);
+const entries = (await getCollection("entries"))
+  .filter((entry) => !entry.data.hidden)
+  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
 
 const groupedEntries = entries.reduce((acc, entry) => {
   const group = entry.data.group || "Uncategorized";
@@ -129,7 +129,7 @@ function getRelativeTime(date: Date): string {
                   </div>
                   <div class="flex flex-col items-end text-xs text-[var(--color-fg-muted)] opacity-60 group-hover:opacity-80 transition-opacity duration-200">
                     <span>{getRelativeTime(new Date(entry.data.pubDate))}</span>
-                    {entry.data.lastEdited && (
+                    {entry.data.editDate && (
                       <span class="text-emerald-400 text-[10px] mt-0.5">
                         edited
                       </span>
